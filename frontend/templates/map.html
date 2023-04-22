@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+  {% block head %}
+    <title>Map</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='map.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='wrapper.css') }}" />
+    <script type="module" src="{{ url_for('static', filename='map.js') }}"></script>
+  {% endblock %}
+
+  {% block body %}
+    <div id="wrapper">
+      <div id="sidebar-wrapper">
+        <ul class="sidebar-nav" id="side_bar">
+          <li class="sidebar-brand" style="font-weight: bold; color: #999999;">
+            <h1>Filter</h1>
+          </li>
+          <hr>
+          <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  Crowdness
+                </button>
+              </h2>
+              <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <div class="list-group">
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="high-check" checked = "checked" type="checkbox" value="high">
+                      Crowded
+                    </label>
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="medium-check" checked = "checked" type="checkbox" value="medium">
+                      Medium
+                    </label>
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="low-check" checked = "checked" type="checkbox" value="low">
+                      Free
+                    </label>
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="close-check" checked = "checked" type="checkbox" value="closed">
+                    Closed
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  Type
+                </button>
+              </h2>
+              <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <div class="list-group">
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="fast-check" checked = "checked" type="checkbox" value="high">
+                      Fast food
+                    </label>
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="dining-check" checked = "checked" type="checkbox" value="medium">
+                      Dining hall
+                    </label>
+                    <label class="list-group-item">
+                      <input class="form-check-input me-1" id="cafe-check" checked = "checked" type="checkbox" value="low">
+                      Cafe
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </ul>
+      </div>
+      <!--/#sidebar-wrapper -->
+      <div id="page-content-wrapper">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1>
+                <a href="#menu-toggle" class="gradient-menu" id="menu-toggle"></a>
+                &nbsp;Map&nbsp;
+              </h1>
+              <div id="map"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {% endblock %}
+  {% block script %}
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1yZohw-dUXrCAZ4VMcyO0zlpYx_7Pw6Q&callback=initMap&libraries=marker&v=beta"
+      defer
+    ></script>
+    {% endblock %}
+

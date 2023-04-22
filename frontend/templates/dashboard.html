@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Dashboard</title>
+{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center g-2">
+            {% for type in type_dict %}
+                <div class="col-lg-4 col-sm-6 align-items-start">
+                    <!-- Create accordion for each column -->
+                    <div class="accordion" id="accordion{{type.replace(' ','-')}}">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">{{type}}</h2>
+                        </div>
+                        <!-- Create accordion item for each cafeteria -->
+                        {% for cafeteria in type_dict[type] %}
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="heading{{type.replace(' ','-')}}">
+                            <button class="accordion-button d-flex collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{cafeteria.name.replace(' ','-')}}" aria-expanded="false" aria-controls="{{cafeteria.id}}">
+                                <div class="w-100">{{cafeteria.name}} </div>
+                                {% if cafeteria.status == "Closed" %}
+                                    <div class="badge bg-secondary rounded-pill" class="p-2 flex-shrink-1">Closed</div>
+                                {% else %}
+                                    {% if cafeteria.wait_times == "< 5 min" %}
+                                        <div class="badge bg-success rounded-pill">&lt;5 min</div>
+                                    {% elif cafeteria.wait_times == "5 - 15 min" %}
+                                        <div class="badge bg-warning rounded-pill">5 - 15 min</div>
+                                    {% else %}
+                                        <div class="badge bg-danger rounded-pill">&gt;15 min</div>
+                                    {% endif %}
+                                {% endif %}
+                            </button>
+                          </h2>
+                          <div id="{{cafeteria.name.replace(' ','-')}}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion{{type.replace(' ','-')}}">
+                            <div class="accordion-body">
+                                <div class="container-fluid gap-4">
+                                    <div class="row">
+                                        <ul class="list-group">
+                                            <li class="list-group-item">Address: {{cafeteria.address}}</li>
+                                            <li class="list-group-item">Time: {{cafeteria.hours_open[:5]}}-{{cafeteria.hours_closed[:5]}}</li>
+                                            <li class="list-group-item">Coordinate: {{cafeteria.coords_lat[:7]}} , {{cafeteria.coords_lon[:7]}}</li>
+                                            <li class="list-group-item">Telephone: {{cafeteria.tele[:11]}}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="row">
+                                        <div class="btn-group" role="group">
+                                            <a type="button" class="btn btn-outline-primary" href="/map?highlight={{cafeteria.id}}">Show on Map</a>
+                                            <a type="button" class="btn btn-outline-success" onClick="">You're worker?</a>
+                                          </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        async function login(cafeteria_id){
+            let id = parseInt(cafeteria_id)
+            let password = prompt("Password");
+            let response = fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "id": cafeteria_id, "password": password })
+            }).then(response=>{
+                if(response.status == 404){
+                    alert("Password is wrong.")
+                }
+                else{
+                    window.location.href = "/home/"+cafeteria_id;
+                }
+            })
+            
+            
+        }
+    </script>
+{% endblock %}

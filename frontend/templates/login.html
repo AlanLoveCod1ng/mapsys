@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Cafeteria Login</title>
+{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6 col-lg-4">
+                {% if failed %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Wrong password!</strong> Login again or continue as guest.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-4">Cafeteria Login</h5>
+                        <form method="POST" action="./login">
+                            {% if error %}
+                                <div class="alert alert-danger">{{ error }}</div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Choose Your Cafeteria</label>
+                                <select class="form-select" aria-label="Default select example" name="id">
+                                    <option selected>Click here to select</option>
+                                    {% for cafeteria in cafeterias %}
+                                    <option value="{{cafeteria.id}}" >{{cafeteria.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password here" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        
+    </script>
+{% endblock %}

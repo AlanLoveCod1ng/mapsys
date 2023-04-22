@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block head %}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" /> 
+  <title>{{cafeteria.name}}</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+    crossorigin="anonymous"
+  />
+
+  <link
+    href="{{ url_for('static', filename='./worker/styles.css') }}"
+    rel="stylesheet"
+  />
+{% endblock %}
+{% block body%}
+<header>
+  <h1>{{ cafeteria.name }}</h1>
+</header>
+
+<main class="text-center container-fluid">
+  <p id="timer"></p>
+  <script src="{{ url_for('static', filename='./worker/app.js') }}"></script>
+
+  <div class="row">
+    <div class="col-sm">
+        <button type="submit" class="btn btn-success time-text" id="five">< 5 min</button>
+    </div>
+    <div class="col-sm">
+        <button type="submit" class="btn btn-warning time-text" id="fifteen">5 - 15 min</button>
+    </div>
+    <div class="col-sm">
+        <button type="submit" class="btn btn-danger time-text" id="twenty">> 15 min</button>
+    </div>
+  </div>
+</main>
+<footer style="margin: 0 5px 0 5px">
+  <div class="logout">
+    <button type="button" class="btn btn-lg btn-primary float-start" id="logout">
+      Logout
+    </button>
+  </div>
+  <form class="options" method="post">
+    <div
+      id="enabled"
+      style="display: flex; align-items: center"
+      class="float-end"
+    >
+      <label class="form-check-label" for="flexSwitchCheckChecked">Close</label>
+      <div class="form-check form-switch">
+        {% if cafeteria.status == "Open" %}
+          <input class="form-check-input" type="checkbox" role="switch" id="check" checked>
+        {% else %}
+          <input class="form-check-input" type="checkbox" role="switch" id="check">
+        {% endif %}
+        <label class="form-check-label" for="flexSwitchCheckChecked">Open</label>
+      </div>
+    </div>
+  </form>
+</footer>
+<script>
+  const state = async (checked) => {
+    if(checked){
+      const response = await fetch("/location/{{cafeteria.id}}?status=Open");
+    }
+    else{
+      const response = await fetch("/location/{{cafeteria.id}}?status=Closed");
+    }
+  }
+  async function changeWait(waittime){
+    if(waittime == "five"){
+      const response = await fetch("/location/{{cafeteria.id}}?wait_times=lt5min");
+    }
+    else if(waittime == 'fifteen'){
+      const response = await fetch("/location/{{cafeteria.id}}?wait_times=5-15min");
+    }
+    else{
+      const response = await fetch("/location/{{cafeteria.id}}?wait_times=gt20min");
+    }
+  }
+  async function logout(){
+    const response = await fetch("/logout");
+    window.location.href = "/workerlogin";
+  }
+  async function changeState(){
+    let checked = $("#check").prop("checked")
+    state(checked)
+  }
+  $('#five').click(()=>{changeWait("five")})
+  $('#fifteen').click(()=>{changeWait("fifteen")})
+  $('#twenty').click(()=>{changeWait("twenty")})
+  $("#check").change(changeState)
+  $("#logout").click(logout)
+</script>
+{% endblock%}
+
+
