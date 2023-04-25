@@ -10,7 +10,6 @@ centerIndex = -1
 
 proxy = "http://127.0.0.1:8080"
 
-token = ""
 cafeteria_id = None
 
 def create_object():
@@ -66,7 +65,7 @@ def table():
 
 @app.route("/home")
 def home():
-    global token
+    token = request.cookies.get('sessionID','')
     global cafeteria_id
     response = requests.get(url=proxy+"/verify?token="+token+"&id="+str(cafeteria_id))
     if response.status_code != 200:
@@ -85,6 +84,7 @@ def home():
 @app.route("/location/<cafe_id>",methods=['GET'])
 def update(cafe_id):
     cafeterias = create_object()
+    token = request.cookies.get('sessionID', '')
     changed_cafe = None
     for cafeteria in cafeterias:
         if cafeteria.id == int(cafe_id):
@@ -125,7 +125,6 @@ def highlight():
 
 @app.route('/login',methods = ['POST'])  
 def login():
-    global token  
     global cafeteria_id  
     body = request.form  
     url = proxy+ "/login"  
@@ -137,14 +136,17 @@ def login():
     if response.status_code != 200: 
         return redirect(url_for(".workerlogin", messages = json.dumps({"main":"Login failed on page baz"}))) 
     token = response.json()['token']
-    cafeteria_id = body['id']  
-    return redirect(f"/home")
+    cafeteria_id = body['id']
+    print(cafeteria_id)
+    resp = redirect(f"/home")
+    resp.set_cookie('sessionID',token)
+    return resp
 
 @app.route('/logout')
 def logout():
-    global token
-    token = ""
-    return redirect("/workerlogin")
+    resp = redirect("/workerlogin")
+    resp.delete_cookie('sessionID')
+    return resp
 
 
 @app.route("/locations", methods = ['GET','POST'])
@@ -157,9 +159,10 @@ def locations():
 
 @app.route("/workerlogin",methods=['GET','POST'])
 def workerlogin():
-    global token
+    token = request.cookies.get('sessionID','')
     if token != "":
         return redirect("/home")
+    print(token)
     cafeteria = create_object()
     if 'messages' in request.args:
         return make_response(render_template("login.html", cafeterias = cafeteria, failed = True))
@@ -181,18 +184,6 @@ def Test():
 def user():
     cafeteria = create_object()
     return make_response(render_template("user.html", cafeterias = cafeteria))
-
-""" @app.route("/workerlogin",methods=['GET','POST'])
-def workerlogin():
-    global token
-    if token != "":
-        return redirect("/home")
-    # 创建餐厅对象列表
-    cafeteria = create_object()
-    if 'messages' in request.args:
-        return make_response(render_template("login.html", cafeterias = cafeteria, failed = True))
-    return make_response(render_template("login.html", cafeterias = cafeteria, failed = False))
- """
 
 
 if __name__ == '__main__':
