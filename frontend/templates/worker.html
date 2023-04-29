@@ -35,14 +35,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
   {% endif %}
-  <form action="/location/{{cafeteria.id}}" method="post">
+  <form action="/update" method="post">
     <div class="d-flex flex-row justify-content-center mb-3">
       <label class="form-check-label fs-5" for="flexSwitchCheckChecked">Close </label>
       <div class="form-check form-switch">
         {% if cafeteria.status == "Open" %}
-          <input class="form-check-input" type="checkbox" role="switch" id="check" checked>
+          <input class="form-check-input" type="checkbox" role="switch" name="status" checked>
         {% else %}
-          <input class="form-check-input" type="checkbox" role="switch" id="check">
+          <input class="form-check-input" type="checkbox" role="switch" name="status">
         {% endif %}
         <label class="form-check-label fs-5" for="flexSwitchCheckChecked">Open</label>
       </div>

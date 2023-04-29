@@ -10,11 +10,12 @@ centerIndex = -1
 
 proxy = "http://127.0.0.1:8080"
 
-cafeteria_id = None
-
-def create_object():
+def create_object(id = -1):
     try:
-        response = requests.get(proxy+"/location").text
+        if id == -1:
+            response = requests.get(proxy+"/location").text
+        else:
+            response = requests.get(f"{proxy}/location?id={id}").text
     except:
         response = "[]"
     dict_list = json.loads(response)
@@ -66,17 +67,12 @@ def table():
 @app.route("/home")
 def home():
     token = request.cookies.get('sessionID','')
-    global cafeteria_id
-    response = requests.get(url=proxy+"/verify?token="+token+"&id="+str(cafeteria_id))
+    response = requests.get(url=proxy+"/verify?token="+token)
     if response.status_code != 200:
-        token = ""
-        cafeteria_id = None
         return redirect('/logout')
-    cafeterias = create_object()
-    selected_cafe = None
-    for cafeteria in cafeterias:
-        if int(cafeteria.id) == int(cafeteria_id):
-            selected_cafe = cafeteria
+    print(response.json())
+    cafeteria_id = response.json()['id']
+    selected_cafe = create_object(cafeteria_id)[0]
     if not selected_cafe:
         return make_response("Invalid cafeteria id.", 403)
     resp_code = 0
@@ -84,28 +80,26 @@ def home():
         resp_code = json.loads(request.args['messages'])['response']
     return make_response(render_template("worker.html", cafeteria=selected_cafe,resp_code = resp_code))
 
-@app.route("/location/<cafe_id>",methods=['POST'])
-def update(cafe_id):
-    cafeterias = create_object()
+@app.route("/update",methods=['POST'])
+def update():
+    token = request.cookies.get('sessionID','')
+    response = requests.get(url=proxy+"/verify?token="+token)
+    if response.status_code != 200:
+        return redirect('/logout')
+    changed_cafe = create_object(response.json()['id'])[0]
     form = request.form
-    print(form)
     token = request.cookies.get('sessionID', '')
-    changed_cafe = None
-    for cafeteria in cafeterias:
-        if cafeteria.id == int(cafe_id):
-            changed_cafe = cafeteria
     if not changed_cafe:
         return make_response("Invalid cafeteria id.", 403)
 
-    changed_cafe.status = form.get("status", changed_cafe.status)
-
+    changed_cafe.status = "Open" if form.get("status", 'off') == 'on' else 'Closed'
     changed_cafe.wait_times = form.get("wait-times", changed_cafe.wait_times)
     to_update = json.dumps(changed_cafe.getAttr())
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
         }
-    url = proxy+"/update?id="+cafe_id+"&token="+token
+    url = proxy+"/update?token="+token
     response = requests.put(url=url,headers=headers,json=to_update)
     if response.status_code == 201:
         return redirect(url_for('.home', messages=json.dumps({"response":1})))
@@ -125,7 +119,6 @@ def highlight():
 
 @app.route('/login',methods = ['POST'])  
 def login():
-    global cafeteria_id  
     body = request.form  
     url = proxy+ "/login"  
     headers = {
@@ -136,8 +129,6 @@ def login():
     if response.status_code != 200: 
         return redirect(url_for(".workerlogin", messages = json.dumps({"main":"Login failed on page baz"}))) 
     token = response.json()['token']
-    cafeteria_id = body['id']
-    print(cafeteria_id)
     resp = redirect(f"/home")
     resp.set_cookie('sessionID',token)
     return resp
@@ -160,7 +151,7 @@ def locations():
 @app.route("/workerlogin",methods=['GET','POST'])
 def workerlogin():
     token = request.cookies.get('sessionID','')
-    if token != "" and cafeteria_id != None:
+    if token != "":
         return redirect("/home")
     cafeteria = create_object()
     if 'messages' in request.args:

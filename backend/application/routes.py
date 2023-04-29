@@ -22,10 +22,16 @@ def token_required(f):
 @app.route('/verify')
 @token_required
 def verify(cafeteria):
-    return make_response("Token is valid", 200)
+    return make_response(jsonify({
+        'message' : 'Token is valid',
+        'id' : cafeteria.id
+    }), 200)
 
 @app.route('/location')
 def location():
+    if 'id' in request.args:
+        cafeterias = fetch_cafeteria(filter={'id':request.args['id']})
+        return make_response(jsonify([cafeterias[0].getAttr()]))
     cafeterias = fetch_cafeteria()
     return_list = []
     for cafeteria in cafeterias:
