@@ -43,34 +43,37 @@ main {
 #timer {
   font-size: 4vh;
 }
-
-.time-text {
-  width: 15rem;
-  height: 15rem;
-  border-radius: 50px;
+.btn-square-md {
+  display: flex;
+  padding-left: 4rem;
+  align-items: center;
+  text-align: center;
+  height: 13rem;
+  line-height: 150%;
+  font-size: 4em;
+  border-radius: 1rem;
 }
 
-@media screen and (max-width: 950px) {
-  .time-text {
-    width: 10rem;
-    height: 10rem;
-    border-radius: 50px;
-    margin-bottom: 1rem;
+@media screen and (max-width: 1400px) {
+  .btn-square-md {
+    display: flex;
+    padding-left: 0rem;
+    align-items: center;
+    text-align: center;
+    height: 13rem;
+    line-height: 150%;
+    font-size: 4em;
+    border-radius: 1rem;
   }
   main {
     height: 75vh;
   }
 }
 /* Replacing warning's hover and active text color because it's different from others */
-.btn-warning:hover,
+/* .btn-warning:hover,
 .btn-warning:active {
   color: white !important;
-}
-
-.time-text {
-  font-size: 5vh;
-  color: white;
-}
+} */
 
 .switch {
   position: relative;

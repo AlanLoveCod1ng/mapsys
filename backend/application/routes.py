@@ -8,13 +8,12 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.args.get('token')
-        id = int(request.args.get('id'))
         if not token:
             return make_response('Token is missing!', 403)
         
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'],"HS256")
-            cafeteria = fetch_cafeteria({'id':id})[0]
+            cafeteria = fetch_cafeteria({'id':data['id']})[0]
         except:
             return make_response('Token is invalid', 403)
         return f(cafeteria, *args, **kwargs)
@@ -41,7 +40,7 @@ def login():
     cafeteria = fetch_cafeteria({'id':id})[0]
     if cafeteria and cafeteria.password == password:
         token = jwt.encode({'id': cafeteria.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'],algorithm='HS256')
-        return make_response(jsonify(
+        return make_response(json.dumps(
             {
                 'token' : token,
                 'message' : "Login successfully."

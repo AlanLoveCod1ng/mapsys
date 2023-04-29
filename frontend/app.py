@@ -71,7 +71,7 @@ def home():
     if response.status_code != 200:
         token = ""
         cafeteria_id = None
-        return make_response(render_template('denied.html'))
+        return redirect('/logout')
     cafeterias = create_object()
     selected_cafe = None
     for cafeteria in cafeterias:
@@ -79,11 +79,16 @@ def home():
             selected_cafe = cafeteria
     if not selected_cafe:
         return make_response("Invalid cafeteria id.", 403)
-    return make_response(render_template("worker.html", cafeteria=selected_cafe, proxy=proxy))
+    resp_code = 0
+    if 'messages' in request.args:
+        resp_code = json.loads(request.args['messages'])['response']
+    return make_response(render_template("worker.html", cafeteria=selected_cafe,resp_code = resp_code))
 
-@app.route("/location/<cafe_id>",methods=['GET'])
+@app.route("/location/<cafe_id>",methods=['POST'])
 def update(cafe_id):
     cafeterias = create_object()
+    form = request.form
+    print(form)
     token = request.cookies.get('sessionID', '')
     changed_cafe = None
     for cafeteria in cafeterias:
@@ -91,17 +96,10 @@ def update(cafe_id):
             changed_cafe = cafeteria
     if not changed_cafe:
         return make_response("Invalid cafeteria id.", 403)
-    wait_dict = {
-        "lt5min" : "< 5 min",
-        "5-15min"  : "5 - 15 min",
-        "gt20min" : "> 20 min",
-        "< 5 min" : "< 5 min",
-        "5 - 15 min" : "5 - 15 min",
-        "> 20 min" : "> 20 min"
-    }
-    changed_cafe.status = request.args.get("status", changed_cafe.status)
 
-    changed_cafe.wait_times = wait_dict[request.args.get("wait_times", changed_cafe.wait_times)]
+    changed_cafe.status = form.get("status", changed_cafe.status)
+
+    changed_cafe.wait_times = form.get("wait-times", changed_cafe.wait_times)
     to_update = json.dumps(changed_cafe.getAttr())
     headers = {
         'Accept': 'application/json',
@@ -109,7 +107,9 @@ def update(cafe_id):
         }
     url = proxy+"/update?id="+cafe_id+"&token="+token
     response = requests.put(url=url,headers=headers,json=to_update)
-    return "Done"
+    if response.status_code == 201:
+        return redirect(url_for('.home', messages=json.dumps({"response":1})))
+    return redirect(url_for('.home', messages=json.dumps({"response":2})))
 
 
 @app.route("/highlight", methods = ['GET','POST'])
@@ -160,31 +160,12 @@ def locations():
 @app.route("/workerlogin",methods=['GET','POST'])
 def workerlogin():
     token = request.cookies.get('sessionID','')
-    if token != "":
+    if token != "" and cafeteria_id != None:
         return redirect("/home")
-    print(token)
     cafeteria = create_object()
     if 'messages' in request.args:
         return make_response(render_template("login.html", cafeterias = cafeteria, failed = True))
     return make_response(render_template("login.html", cafeterias = cafeteria, failed = False))
-
-@app.route("/JoininPage",methods=['GET','POST'])
-def Join():
-    cafeteria = create_object()
-    return make_response(render_template("joinin.html", cafeterias = cafeteria, failed = False))
-
-@app.route("/Test",methods=['GET','POST'])
-def Test():
-    cafeteria = create_object()
-    return make_response(render_template("test.html"))
-
-
-
-@app.route("/user")
-def user():
-    cafeteria = create_object()
-    return make_response(render_template("user.html", cafeterias = cafeteria))
-
 
 if __name__ == '__main__':
     app.run(debug=True)
