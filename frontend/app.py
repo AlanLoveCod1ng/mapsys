@@ -88,15 +88,10 @@ def update():
     response = requests.get(url=proxy+"/verify?token="+token)
     if response.status_code != 200:
         return redirect('/logout')
-    changed_cafe = create_object(response.json()['id'])[0]
-    form = request.form
-    token = request.cookies.get('sessionID', '')
-    if not changed_cafe:
-        return make_response("Invalid cafeteria id.", 403)
-
-    changed_cafe.status = "Open" if form.get("status", 'off') == 'on' else 'Closed'
-    changed_cafe.wait_times = form.get("wait-times", changed_cafe.wait_times)
-    to_update = json.dumps(changed_cafe.getAttr())
+    to_update = dict(request.form)
+    to_update.pop('csrf_token')
+    if 'status' in to_update:
+        to_update['status'] = 'Open' if to_update['status'] == 'on' else 'Closed'
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'

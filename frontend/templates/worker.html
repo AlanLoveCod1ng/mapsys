@@ -49,16 +49,16 @@
     </div>
     <div class="row mb-5">
       <div class="col-sm">
-        <input type="radio" class="btn-check" name="wait-times" id="five" value="< 5 min" autocomplete="off">
+        <input type="radio" class="btn-check" name="wait_times" id="five" value="< 5 min" autocomplete="off">
         <label class="btn btn-outline-success btn-square-md" for="five">< 5 min </label>
       </div>
       <div class="col-sm">
-        <input type="radio" class="btn-check" name="wait-times" id="fifteen" value="5 - 15 min" autocomplete="off">
+        <input type="radio" class="btn-check" name="wait_times" id="fifteen" value="5 - 15 min" autocomplete="off">
         <label class="btn btn-outline-warning btn-square-md" for="fifteen">5 - 15 min </label>
       </div>
       <div class="col-sm">
-        <input type="radio" class="btn-check" name="wait-times" id="twenty" value="> 20 min" autocomplete="off">
-        <label class="btn btn-outline-danger btn-square-md" for="twenty">< 15 min </label>
+        <input type="radio" class="btn-check" name="wait_times" id="twenty" value="> 20 min" autocomplete="off">
+        <label class="btn btn-outline-danger btn-square-md" for="twenty">> 15 min </label>
       </div>
     </div>
     <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" /> 
