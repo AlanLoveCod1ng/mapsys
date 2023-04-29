@@ -1,5 +1,5 @@
 from flask import redirect, request, jsonify, make_response
-from application import app, cur
+from application import app
 from application.model import Cafeteria, fetch_cafeteria, update_cafeteria
 from functools import wraps
 import requests, json, jwt, datetime
@@ -63,9 +63,10 @@ def login():
 @token_required
 def update(cafeteria:Cafeteria):
     try:
-        updated_info = json.loads(request.json)
+        updated_info = request.json
         update_cafeteria(updated_info, {'id':cafeteria.id})
-    except:
+    except Exception as e:
+        print(e)
         return make_response(jsonify({'message': "Update failed."}), 403)
     return make_response(jsonify({'message': "Update successfully."}), 201)
 

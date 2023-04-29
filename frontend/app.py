@@ -3,8 +3,10 @@ from flask import render_template, redirect, make_response
 import requests
 import json
 from model import Cafeteria
+from flask_wtf import CSRFProtect
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba250'
+app.config['SECRET_KEY'] = 'e3f902d994e651150f36f033a9abb04f377ebb317b60beb9'
+csrf = CSRFProtect(app)
 
 centerIndex = -1
 
@@ -79,22 +81,17 @@ def home():
     if 'messages' in request.args:
         resp_code = json.loads(request.args['messages'])['response']
     return make_response(render_template("worker.html", cafeteria=selected_cafe,resp_code = resp_code))
-
+ 
 @app.route("/update",methods=['POST'])
 def update():
     token = request.cookies.get('sessionID','')
     response = requests.get(url=proxy+"/verify?token="+token)
     if response.status_code != 200:
         return redirect('/logout')
-    changed_cafe = create_object(response.json()['id'])[0]
-    form = request.form
-    token = request.cookies.get('sessionID', '')
-    if not changed_cafe:
-        return make_response("Invalid cafeteria id.", 403)
-
-    changed_cafe.status = "Open" if form.get("status", 'off') == 'on' else 'Closed'
-    changed_cafe.wait_times = form.get("wait-times", changed_cafe.wait_times)
-    to_update = json.dumps(changed_cafe.getAttr())
+    to_update = dict(request.form)
+    to_update.pop('csrf_token')
+    if 'status' in to_update:
+        to_update['status'] = 'Open' if to_update['status'] == 'on' else 'Closed'
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'

