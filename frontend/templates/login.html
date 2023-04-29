@@ -16,6 +16,7 @@
                     <div class="card-body">
                         <h5 class="card-title text-center mb-4">Cafeteria Login</h5>
                         <form method="POST" action="./login">
+                            <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" /> 
                             {% if error %}
                                 <div class="alert alert-danger">{{ error }}</div>
                             {% endif %}

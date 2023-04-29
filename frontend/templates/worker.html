@@ -61,6 +61,7 @@
         <label class="btn btn-outline-danger btn-square-md" for="twenty">< 15 min </label>
       </div>
     </div>
+    <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" /> 
     <div class="row">
       <div class="col-12">
         <button class="btn btn-primary btn-lg" type="submit">Update</button>

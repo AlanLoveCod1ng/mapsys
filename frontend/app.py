@@ -3,8 +3,10 @@ from flask import render_template, redirect, make_response
 import requests
 import json
 from model import Cafeteria
+from flask_wtf import CSRFProtect
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba250'
+app.config['SECRET_KEY'] = 'e3f902d994e651150f36f033a9abb04f377ebb317b60beb9'
+csrf = CSRFProtect(app)
 
 centerIndex = -1
 
