@@ -81,7 +81,7 @@ def home():
     if 'messages' in request.args:
         resp_code = json.loads(request.args['messages'])['response']
     return make_response(render_template("worker.html", cafeteria=selected_cafe,resp_code = resp_code))
-
+ 
 @app.route("/update",methods=['POST'])
 def update():
     token = request.cookies.get('sessionID','')
