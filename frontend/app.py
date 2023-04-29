@@ -70,7 +70,6 @@ def home():
     response = requests.get(url=proxy+"/verify?token="+token)
     if response.status_code != 200:
         return redirect('/logout')
-    print(response.json())
     cafeteria_id = response.json()['id']
     selected_cafe = create_object(cafeteria_id)[0]
     if not selected_cafe:

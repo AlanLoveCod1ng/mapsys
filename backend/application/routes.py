@@ -62,10 +62,10 @@ def login():
 @app.route('/update', methods=["PUT"])
 @token_required
 def update(cafeteria:Cafeteria):
-    try:
-        updated_info = json.loads(request.json)
-        update_cafeteria(updated_info, {'id':cafeteria.id})
-    except:
-        return make_response(jsonify({'message': "Update failed."}), 403)
+    # try:
+    updated_info = json.loads(request.json)
+    update_cafeteria(updated_info, {'id':cafeteria.id})
+    # except:
+    #     return make_response(jsonify({'message': "Update failed."}), 403)
     return make_response(jsonify({'message': "Update successfully."}), 201)
 

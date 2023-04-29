@@ -39,5 +39,5 @@ def update_cafeteria(info:dict, filter:dict):
     # get sql filter statement
     set_stmt = " SET " + ", ".join(update_info) if update_info else ""
     sql_stmt = f"UPDATE Cafeteria" + set_stmt + filter_stmt
-    cur.execute(sql_stmt)
+    cur.executescript(sql_stmt)
     con.commit()
