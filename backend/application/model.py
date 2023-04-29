@@ -14,6 +14,7 @@ class Cafeteria:
         self.type = info[9]
         self.password = info[10]
         self.tele = info[11]
+        self.salt = info[12]
     def getAttr(self):
         return self.__dict__
 
@@ -24,6 +25,7 @@ def fetch_cafeteria(filter:dict = {}) -> list[Cafeteria]:
         filter_cond.append(f"{entry} = {filter[entry]}")
     # get sql filter statement
     filter_stmt = " WHERE " + " AND ".join(filter_cond) if filter_cond else ""
+    print(f"SELECT * FROM Cafeteria" + filter_stmt)
     res = cur.execute(f"SELECT * FROM Cafeteria" + filter_stmt)
     result_list = [Cafeteria(i) for i in res.fetchall()]
     return result_list

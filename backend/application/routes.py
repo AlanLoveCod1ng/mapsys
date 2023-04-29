@@ -3,6 +3,7 @@ from application import app, cur
 from application.model import Cafeteria, fetch_cafeteria, update_cafeteria
 from functools import wraps
 import requests, json, jwt, datetime
+import hashlib
 
 def token_required(f):
     @wraps(f)
@@ -39,7 +40,8 @@ def login():
     id = data['id']
     password = data['password']
     cafeteria = fetch_cafeteria({'id':id})[0]
-    if cafeteria and cafeteria.password == password:
+    userInput = hashlib.md5(str.encode(password+cafeteria.salt)).hexdigest()
+    if cafeteria and cafeteria.password == userInput:
         token = jwt.encode({'id': cafeteria.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'],algorithm='HS256')
         return make_response(jsonify(
             {
