@@ -77,10 +77,13 @@
       Logout
     </button>
   </div>
-  <form class="options" method="post">
-    
-  </form>
 </footer>
+<script>
+  async function logout(){
+    const response = await fetch("/logout");
+    window.location.href = "/workerlogin";
+  }
+  $("#logout").click(logout)
+</script>
 {% endblock%}
-
 
