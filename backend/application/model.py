@@ -1,45 +1,42 @@
-from datetime import datetime
-from application import cur, con
-class Cafeteria:
-    def __init__(self, info:tuple) -> None:
-        self.id = info[0]
-        self.name = info[1]
-        self.address = info[2]
-        self.hours_open = info[3]
-        self.hours_closed = info[4]
-        self.status = info[5]
-        self.wait_times = info[6]
-        self.coords_lat = info[7]
-        self.coords_lon = info[8]
-        self.type = info[9]
-        self.password = info[10]
-        self.tele = info[11]
-        self.salt = info[12]
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+from sqlalchemy import Table
+
+db_engine = create_engine('sqlite:///db.sqlite?check_same_thread=False')
+Base = declarative_base()
+session = Session(db_engine)
+
+class Cafeteria(Base):
+    __table__ = Table('Cafeteria', Base.metadata,
+                    autoload=True, autoload_with=db_engine)
     def getAttr(self):
-        return self.__dict__
+        temp = dict(self.__dict__)
+        temp.pop('_sa_instance_state')
+        return temp
 
+def update_check(info):
+    allowed_changed_attr = {
+        'status': set(['Open','Closed']),
+        'wait_times': set(['< 5 min', '5 - 15 min', '> 20 min'])
+    }
+    for attr,value in info.items():
+        if attr not in allowed_changed_attr:
+            raise Exception('Attempting to change non-allowed attr')
+        if value not in allowed_changed_attr[attr]:
+            raise Exception('Attempting to change with unexpected value')
 
+    
 def fetch_cafeteria(filter:dict = {}) -> list[Cafeteria]:
-    filter_cond = []
-    for entry in filter:
-        filter_cond.append(f"{entry} = {filter[entry]}")
-    # get sql filter statement
-    filter_stmt = " WHERE " + " AND ".join(filter_cond) if filter_cond else ""
-    print(f"SELECT * FROM Cafeteria" + filter_stmt)
-    res = cur.execute(f"SELECT * FROM Cafeteria" + filter_stmt)
-    result_list = [Cafeteria(i) for i in res.fetchall()]
-    return result_list
+    query = session.query(Cafeteria)
+    for attr,value in filter.items():
+        query = query.filter( getattr(Cafeteria,attr)==value )
+    res = query.all()
+    return res
 def update_cafeteria(info:dict, filter:dict):
-    filter_cond = []
-    for entry in filter:
-        filter_cond.append(f"{entry} = {filter[entry]}")
-    # get sql filter statement
-    filter_stmt = " WHERE " + " AND ".join(filter_cond) if filter_cond else ""
-    update_info = []
-    for entry in info:
-        update_info.append(f"{entry} = '{info[entry]}'")
-    # get sql filter statement
-    set_stmt = " SET " + ", ".join(update_info) if update_info else ""
-    sql_stmt = f"UPDATE Cafeteria" + set_stmt + filter_stmt
-    cur.execute(sql_stmt)
-    con.commit()
+    tobe_updated = fetch_cafeteria(filter)
+    update_check(info)
+    for cafeteria in tobe_updated:
+        for attr,value in info.items():
+            setattr(cafeteria,attr,value)
+    session.commit()

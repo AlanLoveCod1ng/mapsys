@@ -21,21 +21,54 @@
 <header>
   <h1>{{ cafeteria.name }}</h1>
 </header>
-
+                
 <main class="text-center container-fluid">
-  <p id="timer"></p>
-  <script src="{{ url_for('static', filename='./worker/app.js') }}"></script>
-
-  <div class="row">
-    <div class="col-sm">
-        <button type="submit" class="btn btn-success time-text" id="five">< 5 min</button>
+  {% if resp_code == 1 %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Good Job!</strong> You update successfully.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+  {% endif %}
+  {% if resp_code == 2 %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Something goes wrong!</strong> Please contact you manager.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+  {% endif %}
+  <form action="/update" method="post">
+    <div class="d-flex flex-row justify-content-center mb-3">
+      <label class="form-check-label fs-5" for="flexSwitchCheckChecked">Close </label>
+      <div class="form-check form-switch">
+        {% if cafeteria.status == "Open" %}
+          <input class="form-check-input" type="checkbox" role="switch" name="status" checked>
+        {% else %}
+          <input class="form-check-input" type="checkbox" role="switch" name="status">
+        {% endif %}
+        <label class="form-check-label fs-5" for="flexSwitchCheckChecked">Open</label>
+      </div>
     </div>
-    <div class="col-sm">
-        <button type="submit" class="btn btn-warning time-text" id="fifteen">5 - 15 min</button>
+    <div class="row mb-5">
+      <div class="col-sm">
+        <input type="radio" class="btn-check" name="wait_times" id="five" value="< 5 min" autocomplete="off">
+        <label class="btn btn-outline-success btn-square-md" for="five">< 5 min </label>
+      </div>
+      <div class="col-sm">
+        <input type="radio" class="btn-check" name="wait_times" id="fifteen" value="5 - 15 min" autocomplete="off">
+        <label class="btn btn-outline-warning btn-square-md" for="fifteen">5 - 15 min </label>
+      </div>
+      <div class="col-sm">
+        <input type="radio" class="btn-check" name="wait_times" id="twenty" value="> 20 min" autocomplete="off">
+        <label class="btn btn-outline-danger btn-square-md" for="twenty">> 15 min </label>
+      </div>
     </div>
-    <div class="col-sm">
-        <button type="submit" class="btn btn-danger time-text" id="twenty">> 15 min</button>
+    <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" /> 
+    <div class="row">
+      <div class="col-12">
+        <button class="btn btn-primary btn-lg" type="submit">Update</button>
+      </div>
     </div>
+  </form>
+    
   </div>
 </main>
 <footer style="margin: 0 5px 0 5px">
@@ -45,57 +78,9 @@
     </button>
   </div>
   <form class="options" method="post">
-    <div
-      id="enabled"
-      style="display: flex; align-items: center"
-      class="float-end"
-    >
-      <label class="form-check-label" for="flexSwitchCheckChecked">Close</label>
-      <div class="form-check form-switch">
-        {% if cafeteria.status == "Open" %}
-          <input class="form-check-input" type="checkbox" role="switch" id="check" checked>
-        {% else %}
-          <input class="form-check-input" type="checkbox" role="switch" id="check">
-        {% endif %}
-        <label class="form-check-label" for="flexSwitchCheckChecked">Open</label>
-      </div>
-    </div>
+    
   </form>
 </footer>
-<script>
-  const state = async (checked) => {
-    if(checked){
-      const response = await fetch("/location/{{cafeteria.id}}?status=Open");
-    }
-    else{
-      const response = await fetch("/location/{{cafeteria.id}}?status=Closed");
-    }
-  }
-  async function changeWait(waittime){
-    if(waittime == "five"){
-      const response = await fetch("/location/{{cafeteria.id}}?wait_times=lt5min");
-    }
-    else if(waittime == 'fifteen'){
-      const response = await fetch("/location/{{cafeteria.id}}?wait_times=5-15min");
-    }
-    else{
-      const response = await fetch("/location/{{cafeteria.id}}?wait_times=gt20min");
-    }
-  }
-  async function logout(){
-    const response = await fetch("/logout");
-    window.location.href = "/workerlogin";
-  }
-  async function changeState(){
-    let checked = $("#check").prop("checked")
-    state(checked)
-  }
-  $('#five').click(()=>{changeWait("five")})
-  $('#fifteen').click(()=>{changeWait("fifteen")})
-  $('#twenty').click(()=>{changeWait("twenty")})
-  $("#check").change(changeState)
-  $("#logout").click(logout)
-</script>
 {% endblock%}
 
 
